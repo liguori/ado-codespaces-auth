@@ -52,7 +52,7 @@ const statusBarItem = vscode.window.createStatusBarItem(
 );
 
 const getAccessToken = async (
-  scopes = ["499b84ac-1321-427f-aa17-267ca6975798/.default"]
+  scopes: string[]
 ) => {
   let session = await vscode.authentication.getSession("microsoft", scopes, {
     silent: true,
@@ -110,7 +110,12 @@ const createHelperExecutable = (
 
 const authenticateAdo = async (context: vscode.ExtensionContext) => {
   try {
-    await getAccessToken();
+    const scopes = ["499b84ac-1321-427f-aa17-267ca6975798/.default"];
+    const azdoTenant = context.environmentVariableCollection.get("AZDO_TENANT_ID")
+    if(azdoTenant){
+      scopes.push(`VSCODE_TENANT:${azdoTenant}`)
+    }
+    await getAccessToken(scopes);
 
     createHelperExecutable(context, "ado-auth-helper");
     createHelperExecutable(context, "azure-auth-helper");
